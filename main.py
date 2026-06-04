@@ -1,44 +1,22 @@
-name: Build Android App
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.camera import Camera
+from kivy.uix.button import Button
 
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
+class ScannerApp(App):
+    def build(self):
+        # Create a vertical layout
+        layout = BoxLayout(orientation='vertical')
+        
+        # Add the live camera preview
+        self.camera = Camera(play=True, resolution=(640, 480))
+        layout.add_widget(self.camera)
+        
+        # Add a big button at the bottom to snap the photo
+        self.capture_btn = Button(text="Capture Document", size_hint=(1, 0.2))
+        layout.add_widget(self.capture_btn)
+        
+        return layout
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: Install System Dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
-
-      - name: Install Buildozer
-        run: pip install --upgrade buildozer cython virtualenv
-
-      - name: Configure App Settings
-        run: |
-          buildozer init
-          sed -i 's/# android.permissions =/android.permissions = CAMERA, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE/' buildozer.spec
-          sed -i 's/title = My Application/title = DocScanner/' buildozer.spec
-          sed -i 's/package.name = myapp/package.name = docscanner/' buildozer.spec
-          sed -i 's/# android.accept_sdk_license = False/android.accept_sdk_license = True/' buildozer.spec
-
-      - name: Build APK
-        run: buildozer android debug
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: DocScanner-APK
-          path: bin/*.apk
+if __name__ == '__main__':
+    ScannerApp().run()
