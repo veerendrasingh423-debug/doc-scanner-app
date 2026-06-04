@@ -32,9 +32,10 @@ jobs:
           sed -i 's/# android.permissions =/android.permissions = CAMERA, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE/' buildozer.spec
           sed -i 's/title = My Application/title = DocScanner/' buildozer.spec
           sed -i 's/package.name = myapp/package.name = docscanner/' buildozer.spec
+          sed -i 's/# android.accept_sdk_license = False/android.accept_sdk_license = True/' buildozer.spec
 
       - name: Build APK
-        run: yes | buildozer android debug
+        run: buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
